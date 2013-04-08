@@ -17,14 +17,11 @@ class mysql::params {
   $etc_root_password   = false
   $ssl                 = false
   $restart             = true
+  $config_file_template = 'mysql/my.cnf.erb'
 
   case $::operatingsystem {
-    'Ubuntu': {
-      $service_provider = upstart
-    }
-    default: {
-      $service_provider = undef
-    }
+    'Ubuntu' : { $service_provider = upstart }
+    default  : { $service_provider = undef }
   }
 
   case $::osfamily {

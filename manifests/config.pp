@@ -33,34 +33,33 @@
 #     bind_address  => $::ipaddress,
 #   }
 #
-class mysql::config(
-  $root_password     = 'UNSET',
-  $old_root_password = '',
-  $bind_address      = $mysql::params::bind_address,
-  $port              = $mysql::params::port,
-  $etc_root_password = $mysql::params::etc_root_password,
-  $service_name      = $mysql::params::service_name,
-  $config_file       = $mysql::params::config_file,
-  $socket            = $mysql::params::socket,
-  $pidfile           = $mysql::params::pidfile,
-  $datadir           = $mysql::params::datadir,
-  $ssl               = $mysql::params::ssl,
-  $ssl_ca            = $mysql::params::ssl_ca,
-  $ssl_cert          = $mysql::params::ssl_cert,
-  $ssl_key           = $mysql::params::ssl_key,
-  $log_error         = $mysql::params::log_error,
-  $default_engine    = 'UNSET',
-  $root_group        = $mysql::params::root_group,
-  $restart           = $mysql::params::restart,
-  $purge_conf_dir    = false
-) inherits mysql::params {
-
+class mysql::config (
+  $root_password        = 'UNSET',
+  $old_root_password    = '',
+  $bind_address         = $mysql::params::bind_address,
+  $port                 = $mysql::params::port,
+  $etc_root_password    = $mysql::params::etc_root_password,
+  $service_name         = $mysql::params::service_name,
+  $config_file          = $mysql::params::config_file,
+  $config_file_template = $mysql::params::config_file_template,
+  $socket               = $mysql::params::socket,
+  $pidfile              = $mysql::params::pidfile,
+  $datadir              = $mysql::params::datadir,
+  $ssl                  = $mysql::params::ssl,
+  $ssl_ca               = $mysql::params::ssl_ca,
+  $ssl_cert             = $mysql::params::ssl_cert,
+  $ssl_key              = $mysql::params::ssl_key,
+  $log_error            = $mysql::params::log_error,
+  $default_engine       = 'UNSET',
+  $root_group           = $mysql::params::root_group,
+  $restart              = $mysql::params::restart,
+  $purge_conf_dir       = false,) inherits mysql::params {
   File {
     owner  => 'root',
     group  => $root_group,
     mode   => '0400',
-    notify    => $restart ? {
-      true => Exec['mysqld-restart'],
+    notify => $restart ? {
+      true  => Exec['mysqld-restart'],
       false => undef,
     },
   }
@@ -90,8 +89,8 @@ class mysql::config(
   # manage root password if it is set
   if $root_password != 'UNSET' {
     case $old_root_password {
-      '':      { $old_pw='' }
-      default: { $old_pw="-p'${old_root_password}'" }
+      ''      : { $old_pw = '' }
+      default : { $old_pw = "-p'${old_root_password}'" }
     }
 
     exec { 'set_mysql_rootpw':
@@ -100,7 +99,7 @@ class mysql::config(
       unless    => "mysqladmin -u root -p'${root_password}' status > /dev/null",
       path      => '/usr/local/sbin:/usr/bin:/usr/local/bin',
       notify    => $restart ? {
-        true => Exec['mysqld-restart'],
+        true  => Exec['mysqld-restart'],
         false => undef,
       },
       require   => File['/etc/mysql/conf.d'],
@@ -112,29 +111,29 @@ class mysql::config(
     }
 
     if $etc_root_password {
-      file{ '/etc/my.cnf':
+      file { '/etc/my.cnf':
         content => template('mysql/my.cnf.pass.erb'),
         require => Exec['set_mysql_rootpw'],
       }
     }
   } else {
-    file { '/root/.my.cnf':
-      ensure  => present,
-    }
+    file { '/root/.my.cnf': ensure => present, }
   }
 
   file { '/etc/mysql':
     ensure => directory,
     mode   => '0755',
   }
+
   file { '/etc/mysql/conf.d':
     ensure  => directory,
     mode    => '0755',
     recurse => $purge_conf_dir,
     purge   => $purge_conf_dir,
   }
+
   file { $config_file:
-    content => template('mysql/my.cnf.erb'),
+    content => template($config_file_template),
     mode    => '0644',
   }
 
