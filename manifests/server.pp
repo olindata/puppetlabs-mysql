@@ -1,9 +1,5 @@
 # Class: mysql::server:  See README.md for documentation.
 class mysql::server (
-  #Deprecated.
-  $enabled                 = undef,
-  $manage_service          = undef,
-  #
   $config_file             = $mysql::params::config_file,
   $manage_config_file      = $mysql::params::manage_config_file,
   $old_root_password       = $mysql::params::old_root_password,
@@ -18,7 +14,14 @@ class mysql::server (
   $service_enabled         = $mysql::params::server_service_enabled,
   $service_manage          = $mysql::params::server_service_manage,
   $service_name            = $mysql::params::server_service_name,
-  $service_provider        = $mysql::params::server_service_provider
+  $service_provider        = $mysql::params::server_service_provider,
+  $users                   = {},
+  $grants                  = {},
+  $databases               = {},
+
+  # Deprecated parameters
+  $enabled                 = undef,
+  $manage_service          = undef
 ) inherits mysql::params {
 
   # Deprecated parameters.
@@ -44,6 +47,7 @@ class mysql::server (
   include '::mysql::server::config'
   include '::mysql::server::service'
   include '::mysql::server::root_password'
+  include '::mysql::server::providers'
 
   if $remove_default_accounts {
     class { '::mysql::server::account_security':
@@ -59,6 +63,7 @@ class mysql::server (
   Class['mysql::server::config'] ->
   Class['mysql::server::service'] ->
   Class['mysql::server::root_password'] ->
+  Class['mysql::server::providers'] ->
   Anchor['mysql::server::end']
 
 }
