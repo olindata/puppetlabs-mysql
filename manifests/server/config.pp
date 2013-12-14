@@ -1,7 +1,10 @@
 # See README.me for options.
 class mysql::server::config {
-
   $options = $mysql::server::options
+
+  user { 'mysql': ensure => present, }
+
+  group { 'mysql': ensure => present, }
 
   File {
     owner  => 'root',
@@ -22,7 +25,7 @@ class mysql::server::config {
     purge   => $mysql::server::purge_conf_dir,
   }
 
-  if $mysql::server::manage_config_file  {
+  if $mysql::server::manage_config_file {
     file { $mysql::server::config_file:
       content => template('mysql/my.cnf.erb'),
       mode    => '0644',
