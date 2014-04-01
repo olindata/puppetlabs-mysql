@@ -10,7 +10,6 @@ class mysql::server::config {
     owner  => 'root',
     group  => $mysql::server::root_group,
     mode   => '0400',
-    notify => Class['mysql::server::service'],
   }
 
   file { '/etc/mysql':
@@ -29,6 +28,12 @@ class mysql::server::config {
     file { $mysql::server::config_file:
       content => template('mysql/my.cnf.erb'),
       mode    => '0644',
+    }
+  }
+
+  if $options['mysqld']['ssl-disable'] {
+    notify {'ssl-disable':
+      message =>'Disabling SSL is evil! You should never ever do this except if you are forced to use a mysql version compiled without SSL support'
     }
   }
 }
