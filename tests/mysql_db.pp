@@ -1,5 +1,5 @@
 class { 'mysql::server':
-  config_hash => {'root_password' => 'password'}
+  root_password => 'password'
 }
 mysql::db { 'mydb':
   user     => 'myuser',
@@ -11,7 +11,7 @@ mysql::db { "mydb_${fqdn}":
   user     => 'myuser',
   password => 'mypass',
   dbname   => 'mydb',
-  host     => ${fqdn},
+  host     => $::fqdn,
   grant    => ['SELECT', 'UPDATE'],
   tag      => $domain,
 }

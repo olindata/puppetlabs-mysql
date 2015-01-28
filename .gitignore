@@ -1,7 +1,9 @@
-*.swp
 pkg/
 Gemfile.lock
-.rspec_system
-spec/fixtures
-/coverage/
-.vagrant
+vendor/
+spec/fixtures/
+.vagrant/
+.bundle/
+coverage/
+.idea/
+*.iml
